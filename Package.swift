@@ -5,11 +5,15 @@ import PackageDescription
 let package = Package(
     name: "SwiftGit2",
     // This is necessary because the test dependencies explicitly specify these platform versions.
-    platforms: [.macOS(.v10_15), .iOS("15.5"), .tvOS(.v13), .visionOS(.v1)],
+    platforms: [.macOS(.v10_15), .iOS("15.0"), .tvOS(.v13), .visionOS(.v1)],
     products: [
         .library(
             name: "SwiftGit2",
             targets: ["SwiftGit2"]
+        ),
+        .library(
+            name: "CuteGitCore",
+            targets: ["CuteGitCore"]
         ),
     ],
     dependencies: [
@@ -22,6 +26,10 @@ let package = Package(
         .target(
             name: "SwiftGit2",
             dependencies: ["libgit2"]
+        ),
+        .target(
+            name: "CuteGitCore",
+            dependencies: ["libgit2", "SwiftGit2"]
         ),
         .testTarget(
             name: "SwiftGit2Tests",

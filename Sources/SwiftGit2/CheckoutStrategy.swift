@@ -11,89 +11,97 @@ import libgit2
 /// The flags defining how a checkout should be performed.
 /// More detail is available in the libgit2 documentation for `git_checkout_strategy_t`.
 public struct CheckoutStrategy: OptionSet {
-    // MARK: - Properties
+	private let value: UInt
 
-    public let rawValue: UInt
+	// MARK: - Initialization
 
-    // MARK: - Initialization
+	/// Create an instance initialized with `nil`.
+	public init(nilLiteral: ()) {
+		self.value = 0
+	}
 
-    /// Create an instance initialized with `nil`.
-    public init(nilLiteral: ()) {
-        rawValue = 0
-    }
+	public init(rawValue value: UInt) {
+		self.value = value
+	}
 
-    public init(rawValue: UInt) {
-        self.rawValue = rawValue
-    }
+	public init(_ strategy: git_checkout_strategy_t) {
+		self.value = UInt(strategy.rawValue)
+	}
 
-    init(_ strategy: git_checkout_strategy_t) {
-        rawValue = UInt(strategy.rawValue)
-    }
+	public static var allZeros: CheckoutStrategy {
+		return self.init(rawValue: 0)
+	}
 
-    var gitCheckoutStrategy: git_checkout_strategy_t {
-        git_checkout_strategy_t(UInt32(rawValue))
-    }
+	// MARK: - Properties
 
-    // MARK: - Values
+	public var rawValue: UInt {
+		return value
+	}
 
-    /// Default is a dry run, no actual updates.
-    public static let none = CheckoutStrategy(GIT_CHECKOUT_NONE)
+	public var gitCheckoutStrategy: git_checkout_strategy_t {
+		return git_checkout_strategy_t(UInt32(self.value))
+	}
 
-    /// Allow safe updates that cannot overwrite uncommitted data.
-    public static let safe = CheckoutStrategy(GIT_CHECKOUT_SAFE)
+	// MARK: - Values
 
-    /// Allow all updates to force working directory to look like index
-    public static let force = CheckoutStrategy(GIT_CHECKOUT_FORCE)
+	/// Default is a dry run, no actual updates.
+	public static let None = CheckoutStrategy(GIT_CHECKOUT_NONE)
 
-    /// Allow checkout to recreate missing files.
-    public static let recreateMissing = CheckoutStrategy(GIT_CHECKOUT_RECREATE_MISSING)
+	/// Allow safe updates that cannot overwrite uncommitted data.
+	public static let Safe = CheckoutStrategy(GIT_CHECKOUT_SAFE)
 
-    /// Allow checkout to make safe updates even if conflicts are found.
-    public static let allowConflicts = CheckoutStrategy(GIT_CHECKOUT_ALLOW_CONFLICTS)
+	/// Allow all updates to force working directory to look like index
+	public static let Force = CheckoutStrategy(GIT_CHECKOUT_FORCE)
 
-    /// Remove untracked files not in index (that are not ignored).
-    public static let removeUntracked = CheckoutStrategy(GIT_CHECKOUT_REMOVE_UNTRACKED)
+	/// Allow checkout to recreate missing files.
+	public static let RecreateMissing = CheckoutStrategy(GIT_CHECKOUT_RECREATE_MISSING)
 
-    /// Remove ignored files not in index.
-    public static let removeIgnored = CheckoutStrategy(GIT_CHECKOUT_REMOVE_IGNORED)
+	/// Allow checkout to make safe updates even if conflicts are found.
+	public static let AllowConflicts = CheckoutStrategy(GIT_CHECKOUT_ALLOW_CONFLICTS)
 
-    /// Only update existing files, don't create new ones.
-    public static let updateOnly = CheckoutStrategy(GIT_CHECKOUT_UPDATE_ONLY)
+	/// Remove untracked files not in index (that are not ignored).
+	public static let RemoveUntracked = CheckoutStrategy(GIT_CHECKOUT_REMOVE_UNTRACKED)
 
-    /// Normally checkout updates index entries as it goes; this stops that.
-    /// Implies `DontWriteIndex`.
-    public static let dontUpdateIndex = CheckoutStrategy(GIT_CHECKOUT_DONT_UPDATE_INDEX)
+	/// Remove ignored files not in index.
+	public static let RemoveIgnored = CheckoutStrategy(GIT_CHECKOUT_REMOVE_IGNORED)
 
-    /// Don't refresh index/config/etc before doing checkout
-    public static let noRefresh = CheckoutStrategy(GIT_CHECKOUT_NO_REFRESH)
+	/// Only update existing files, don't create new ones.
+	public static let UpdateOnly = CheckoutStrategy(GIT_CHECKOUT_UPDATE_ONLY)
 
-    /// Allow checkout to skip unmerged files
-    public static let skipUnmerged = CheckoutStrategy(GIT_CHECKOUT_SKIP_UNMERGED)
+	/// Normally checkout updates index entries as it goes; this stops that.
+	/// Implies `DontWriteIndex`.
+	public static let DontUpdateIndex = CheckoutStrategy(GIT_CHECKOUT_DONT_UPDATE_INDEX)
 
-    /// For unmerged files, checkout stage 2 from index
-    public static let useOurs = CheckoutStrategy(GIT_CHECKOUT_USE_OURS)
+	/// Don't refresh index/config/etc before doing checkout
+	public static let NoRefresh = CheckoutStrategy(GIT_CHECKOUT_NO_REFRESH)
 
-    /// For unmerged files, checkout stage 3 from index
-    public static let useTheirs = CheckoutStrategy(GIT_CHECKOUT_USE_THEIRS)
+	/// Allow checkout to skip unmerged files
+	public static let SkipUnmerged = CheckoutStrategy(GIT_CHECKOUT_SKIP_UNMERGED)
 
-    /// Treat pathspec as simple list of exact match file paths
-    public static let disablePathspecMatch = CheckoutStrategy(GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH)
+	/// For unmerged files, checkout stage 2 from index
+	public static let UseOurs = CheckoutStrategy(GIT_CHECKOUT_USE_OURS)
 
-    /// Ignore directories in use, they will be left empty
-    public static let skipLockedDirectories = CheckoutStrategy(GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES)
+	/// For unmerged files, checkout stage 3 from index
+	public static let UseTheirs = CheckoutStrategy(GIT_CHECKOUT_USE_THEIRS)
 
-    /// Don't overwrite ignored files that exist in the checkout target
-    public static let dontOverwriteIgnored = CheckoutStrategy(GIT_CHECKOUT_DONT_OVERWRITE_IGNORED)
+	/// Treat pathspec as simple list of exact match file paths
+	public static let DisablePathspecMatch = CheckoutStrategy(GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH)
 
-    /// Write normal merge files for conflicts
-    public static let conflictStyleMerge = CheckoutStrategy(GIT_CHECKOUT_CONFLICT_STYLE_MERGE)
+	/// Ignore directories in use, they will be left empty
+	public static let SkipLockedDirectories = CheckoutStrategy(GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES)
 
-    /// Include common ancestor data in diff3 format files for conflicts
-    public static let conflictStyleDiff3 = CheckoutStrategy(GIT_CHECKOUT_CONFLICT_STYLE_DIFF3)
+	/// Don't overwrite ignored files that exist in the checkout target
+	public static let DontOverwriteIgnored = CheckoutStrategy(GIT_CHECKOUT_DONT_OVERWRITE_IGNORED)
 
-    /// Don't overwrite existing files or folders
-    public static let dontRemoveExisting = CheckoutStrategy(GIT_CHECKOUT_DONT_REMOVE_EXISTING)
+	/// Write normal merge files for conflicts
+	public static let ConflictStyleMerge = CheckoutStrategy(GIT_CHECKOUT_CONFLICT_STYLE_MERGE)
 
-    /// Normally checkout writes the index upon completion; this prevents that.
-    public static let dontWriteIndex = CheckoutStrategy(GIT_CHECKOUT_DONT_WRITE_INDEX)
+	/// Include common ancestor data in diff3 format files for conflicts
+	public static let ConflictStyleDiff3 = CheckoutStrategy(GIT_CHECKOUT_CONFLICT_STYLE_DIFF3)
+
+	/// Don't overwrite existing files or folders
+	public static let DontRemoveExisting = CheckoutStrategy(GIT_CHECKOUT_DONT_REMOVE_EXISTING)
+
+	/// Normally checkout writes the index upon completion; this prevents that.
+	public static let DontWriteIndex = CheckoutStrategy(GIT_CHECKOUT_DONT_WRITE_INDEX)
 }
